@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/todo_provider.dart';
 import 'screens/home_screen.dart';
+import 'screens/history_screen.dart';
 
 void main() {
   runApp(
@@ -18,9 +19,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mini To-do',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(useMaterial3: true),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/history': (context) => const HistoryScreen(),
+      },
     );
   }
 }

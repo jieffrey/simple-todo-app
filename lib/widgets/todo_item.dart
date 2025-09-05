@@ -14,7 +14,7 @@ class TodoItem extends StatelessWidget {
       leading: Checkbox(
         value: todo.isDone,
         onChanged: (_) {
-          context.read<TodoProvider>().toggleTodoStatus(todo.id);
+        context.read<TodoProvider>().removeTodo(todo);
         },
       ),
       title: Text(
@@ -26,7 +26,7 @@ class TodoItem extends StatelessWidget {
       trailing: IconButton(
         icon: const Icon(Icons.delete, color: Colors.red),
         onPressed: () {
-          context.read<TodoProvider>().removeTodo(todo.id);
+          context.read<TodoProvider>().toggleTodoStatus(todo);
         },
       ),
     );

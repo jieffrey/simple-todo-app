@@ -1,73 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/todo_provider.dart';
-import '../widgets/todo_item.dart';
-import 'history_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _controller = TextEditingController();
-
-  void _addTodo() {
-    context.read<TodoProvider>().addTodo(_controller.text);
-    _controller.clear();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final todos = context.watch<TodoProvider>().todos;
+    final todoProvider = context.watch<TodoProvider>();
+    final controller = TextEditingController();
 
     return Scaffold(
+      backgroundColor: Colors.pink[50],
       appBar: AppBar(
-        title: const Text("Mini To-do"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const HistoryScreen()),
-              );
-            },
-          )
-        ],
+        backgroundColor: Colors.pink[300],
+        title: const Text(
+          '📝 Cute To-Do',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      labelText: "Add a task",
-                      border: OutlineInputBorder(),
+          const SizedBox(height: 12),
+          Expanded(
+            child: todoProvider.todos.isEmpty
+                ? const Center(
+                    child: Text(
+                      '🌸 Belum ada tugas, tambah dulu yuk!',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: todoProvider.todos.length,
+                    itemBuilder: (context, index) {
+                      final todo = todoProvider.todos[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        color: Colors.white,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: todo.isDone
+                                ? Colors.green[200]
+                                : Colors.pink[200],
+                            child: Text(
+                              todo.isDone ? "✅" : "🐻",
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              fontSize: 18,
+                              decoration: todo.isDone
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: todo.isDone
+                                  ? Colors.grey
+                                  : Colors.black87,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () =>
+                                context.read<TodoProvider>().removeTodo(todo),
+                          ),
+                          onTap: () =>
+                              context.read<TodoProvider>().toggleTodoStatus(todo),
+                        ),
+                      );
+                    },
                   ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.pink[300],
+        icon: const Icon(Icons.add),
+        label: const Text("Tambah"),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text("🌼 Tambah Tugas Baru"),
+              content: TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: "Tulis tugasmu di sini...",
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(width: 8),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text("Batal"),
+                  onPressed: () => Navigator.pop(context),
+                ),
                 ElevatedButton(
-                  onPressed: _addTodo,
-                  child: const Text("Add"),
+                  onPressed: () {
+                    if (controller.text.isNotEmpty) {
+                      context.read<TodoProvider>().addTodo(controller.text);
+                      Navigator.pop(context);
+                      controller.clear();
+                    }
+                  },
+                  child: const Text("Tambah"),
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: todos.length,
-              itemBuilder: (ctx, i) => TodoItem(todo: todos[i]),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

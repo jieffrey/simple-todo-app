@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/todo.dart';
 
 class TodoProvider extends ChangeNotifier {
@@ -6,20 +6,29 @@ class TodoProvider extends ChangeNotifier {
 
   List<Todo> get todos => _todos;
 
-  void addTodo(String title) {
-    if (title.trim().isEmpty) return;
-    _todos.add(Todo(id: DateTime.now().toString(), title: title));
+void addTodo(String title) {
+  _todos.add(Todo(
+    id: DateTime.now().toString(), // id wajib
+    title: title,
+  ));
+  notifyListeners();
+}
+
+
+  void removeTodo(Todo todo) {
+    _todos.remove(todo);
     notifyListeners();
   }
 
-  void toggleTodoStatus(String id) {
-    final todo = _todos.firstWhere((t) => t.id == id);
-    todo.isDone = !todo.isDone;
+  void toggleTodoStatus(Todo todo) {
+  final index = _todos.indexOf(todo);
+  if (index != -1) {
+    _todos[index].isDone = !_todos[index].isDone;
     notifyListeners();
   }
+}
 
-  void removeTodo(String id) {
-    _todos.removeWhere((t) => t.id == id);
-    notifyListeners();
-  }
+
+  List<Todo> get completedTodos =>
+      _todos.where((todo) => todo.isDone).toList();
 }
